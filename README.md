@@ -49,7 +49,7 @@ PS：这里先贴上源码，跑一下demo，一目了然
 先来看看服务端提供的接口部分，这里仿照Retrofit的ApiService的写法，定义了一个NetApi类：
 ```java
 /**
- * @author liwangcheng
+ * @author diy-green
  * @date 2019-08-30 06:43.
  */
 public class NetApi {
@@ -100,7 +100,7 @@ public class NetApi {
 
 ```java
 /**
- * @author liwangcheng
+ * @author diy-green
  * @date 2019-08-30 06:47.
  */
 public class ApiException extends Exception {
@@ -114,7 +114,7 @@ public class ApiException extends Exception {
 这里再定义一个订单类：
 ```java
 /**
- * @author liwangcheng
+ * @author diy-green
  * @date 2019-08-30 06:44.
  */
 public class Order {
@@ -128,7 +128,7 @@ public class Order {
 
 ```java
 /**
- * @author liwangcheng
+ * @author diy-green
  * @date 2019-08-30 07:19.
  */
 public class IntegerObserver implements Observer<Integer> {
@@ -260,7 +260,7 @@ public void testPit2(Observer<Integer> observer) {
 
 ```java
 /**
- * @author liwangcheng
+ * @author diy-green
  * @date 2019-08-30 07:04.
  */
 public class UpdateVersionException extends ApiException {
@@ -405,7 +405,7 @@ public void testPit2(Observer<Integer> observer) {
 
 ```java
 /**
- * @author liwangcheng
+ * @author diy-green
  * @date 2019-08-30 08:23.
  */
 public class Result<T> {
