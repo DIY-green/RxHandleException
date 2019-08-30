@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">RxHandleException</string>
+    <string name="solution_1">方案一</string>
+    <string name="solution_2">方案二</string>
+    <string name="solution_3">方案三</string>
+    <string name="first_pit">坑1</string>
+    <string name="second_pit">坑2</string>
+    <string name="third_pit">坑3</string>
+    <string name="workable">可行</string>
+</resources>
