@@ -17,10 +17,10 @@ public class IntegerObserver implements Observer<Integer> {
     private static final String TAG = "IntegerObserver";
 
     private Order mOrder;
-    private Context mContext;
+    private Contract.View mView;
 
-    public IntegerObserver(Context context, Order order) {
-        mContext = context.getApplicationContext();
+    public IntegerObserver(Contract.View view, Order order) {
+        mView = view;
         mOrder = order;
     }
 
@@ -53,18 +53,14 @@ public class IntegerObserver implements Observer<Integer> {
     @Override
     public void onComplete() {
         Log.e(TAG, "onComplete");
+        mView.hideLoading();
     }
 
     private void toast(String message) {
         boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
         Log.e(TAG, "show Toast - 是否在主线程中调用:" + isMainThread);
-        if (!isMainThread) {
-            Looper.prepare();
-            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-            Looper.loop();
-        } else {
-            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-        }
+        mView.showToast(message);
+        mView.hideLoading();
     }
 
     private void updateOrderVersion(int orderVersion) {

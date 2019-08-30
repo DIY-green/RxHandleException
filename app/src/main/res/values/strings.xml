@@ -7,4 +7,5 @@
     <string name="second_pit">坑2</string>
     <string name="third_pit">坑3</string>
     <string name="workable">可行</string>
+    <string name="reset_order">重置订单</string>
 </resources>

@@ -14,6 +14,11 @@ public class NetApi {
 
     public static int sOrderVersion = 0;
 
+    /**
+     * 返回Observable的接口
+     * @param order
+     * @return
+     */
     public Observable<Integer> verify(final Order order) {
         return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
@@ -29,6 +34,11 @@ public class NetApi {
         });
     }
 
+    /**
+     * 同步调用接口
+     * @param order
+     * @return
+     */
     public Integer syncVerify(Order order) throws ApiException {
         checkOrderVersion(order);
         int orderVersion = order.orderVersion + 1;

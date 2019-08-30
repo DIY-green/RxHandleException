@@ -22,6 +22,11 @@ public class Solution1 {
         NetApi.sOrderVersion = mOrder.orderVersion;
     }
 
+    /**
+     * 中间某个接口失败，接收到异常了，但是orderVersion更新丢失了
+     *
+     * @param observer
+     */
     public void testPit1(Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -42,7 +47,12 @@ public class Solution1 {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observer);
     }
-
+    /**
+     * 中间某个接口失败，在doOnError中抛出UpdateVersionException包裹orderVersion，
+     * 希望调用方捕获该异常，但是异常被转换了，orderVersion信息丢失
+     *
+     * @param observer
+     */
     public void testPit2(Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -71,6 +81,12 @@ public class Solution1 {
                 .subscribe(observer);
     }
 
+    /**
+     * doOnError 受 subscribeOn/observerOn 影响，调用线程不确定
+     * 可能导致 observer.onError 在非目标线程调用
+     *
+     * @param observer
+     */
     public void testPit3(final Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -94,11 +110,21 @@ public class Solution1 {
                         observer.onError(new UpdateVersionException(orderVersion, throwable));
                     }
                 })
+                .onExceptionResumeNext(new ObservableSource<Integer>() {
+                    @Override
+                    public void subscribe(Observer<? super Integer> observer) {
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observer);
     }
 
+    /**
+     * 在doOnError中主动切换线程保证 observer.onError 在目标线程调用
+     *
+     * @param observer
+     */
     public void fillPit(final Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -119,12 +145,19 @@ public class Solution1 {
                     @Override
                     public void accept(final Throwable throwable) throws Exception {
                         final int orderVersion = getLatestOrderVersion();
-                        Observable.just(1).subscribeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Integer>() {
+                        // 指定subscribeOn为目标线程，确保Observer#onError在目标线程中调用
+                        Observable.just(0).subscribeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Object>() {
                             @Override
-                            public void accept(Integer integer) throws Exception {
+                            public void accept(Object o) throws Exception {
                                 observer.onError(new UpdateVersionException(orderVersion, throwable));
                             }
                         });
+                    }
+                })// 防止onError多次调用
+                .onExceptionResumeNext(new ObservableSource<Integer>() {
+                    @Override
+                    public void subscribe(Observer<? super Integer> observer) {
+
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -144,4 +177,7 @@ public class Solution1 {
         return NetApi.sOrderVersion;
     }
 
+    public void resetOrder() {
+        mOrder.orderVersion = 1;
+    }
 }

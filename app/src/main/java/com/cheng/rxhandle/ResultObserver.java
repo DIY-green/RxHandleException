@@ -17,15 +17,15 @@ public class ResultObserver<T> implements Observer<T> {
     private static final String TAG = "ResultObserver";
 
     private Order mOrder;
-    private Context mContext;
+    private Contract.View mView;
     private Callback<T> mCallback;
 
     public interface Callback<T> {
         void callback(T t);
     }
 
-    public ResultObserver(Context context, Order order) {
-        mContext = context.getApplicationContext();
+    public ResultObserver(Contract.View view, Order order) {
+        mView = view;
         mOrder = order;
     }
 
@@ -70,13 +70,8 @@ public class ResultObserver<T> implements Observer<T> {
     private void toast(String message) {
         boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
         Log.e(TAG, "show Toast - 是否在主线程中调用:" + isMainThread);
-        if (!isMainThread) {
-            Looper.prepare();
-            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-            Looper.loop();
-        } else {
-            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-        }
+        mView.showToast(message);
+        mView.hideLoading();
     }
 
     private void updateOrderVersion(int orderVersion) {

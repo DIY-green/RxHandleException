@@ -69,6 +69,7 @@ public class Solution3 {
                     updateOrderVersion(mNetApi.syncPay(order));
                     emitter.onNext(mOrder.orderVersion);
                 } catch (Exception ex) {
+                    // 将orderVersion封装到自定义异常中
                     int orderVersion = getLatestOrderVersion();
                     emitter.onError(new UpdateVersionException(orderVersion, ex));
                 }
@@ -88,4 +89,7 @@ public class Solution3 {
         return NetApi.sOrderVersion;
     }
 
+    public void resetOrder() {
+        mOrder.orderVersion = 1;
+    }
 }

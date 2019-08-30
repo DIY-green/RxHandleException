@@ -22,6 +22,11 @@ public class Solution2 {
         NetApi.sOrderVersion = mOrder.orderVersion;
     }
 
+    /**
+     * 中间某个接口失败，接收到异常了，但是orderVersion更新丢失了
+     *
+     * @param observer
+     */
     public void testPit1(Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -43,6 +48,11 @@ public class Solution2 {
                 .subscribe(observer);
     }
 
+    /**
+     * 在onExceptionResumeNext中转化异常，由于没有原异常信息，导致原异常丢失
+     *
+     * @param observer
+     */
     public void testPit2(Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -63,6 +73,7 @@ public class Solution2 {
                     @Override
                     public void subscribe(Observer<? super Integer> observer) {
                         int orderVersion = getLatestOrderVersion();
+                        // 定义自定义异常，原异常信息丢失
                         observer.onError(new UpdateVersionException(orderVersion, "订单结账异常"));
                     }
                 })
@@ -71,6 +82,12 @@ public class Solution2 {
                 .subscribe(observer);
     }
 
+    /**
+     * 在onExceptionResumeNext中转化结果，将失败信息封装到返回结果
+     * 原异常丢失，处理方式也不符合Java的异常系统设计
+     *
+     * @param observer
+     */
     public void testPit3(final Observer<Result<Integer>> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -106,6 +123,11 @@ public class Solution2 {
                 .subscribe(observer);
     }
 
+    /**
+     * doOnError中捕获并转换异常，使用成员变量保存，在onExceptionResumeNext直接执行onError
+     *
+     * @param observer
+     */
     public void fillPit(final Observer<Integer> observer) {
         mNetApi.verify(mOrder)
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
@@ -152,4 +174,7 @@ public class Solution2 {
         return NetApi.sOrderVersion;
     }
 
+    public void resetOrder() {
+        mOrder.orderVersion = 1;
+    }
 }
